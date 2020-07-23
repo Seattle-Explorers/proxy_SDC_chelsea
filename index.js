@@ -29,6 +29,11 @@ const proxyToDescription = createProxyMiddleware(descriptionOptions);
 const proxyToReviews = createProxyMiddleware(reviewsOptions);
 const proxyToReservation = createProxyMiddleware(reservationOptions);
 
+// loader.io
+app.get('/loaderio-568aba208b4dd8267532dd993152af3d', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'loaderio-568aba208b4dd8267532dd993152af3d.txt'));
+});
+
 // proxy home
 app.use('/:id', express.static(proxyPath));
 
@@ -44,6 +49,8 @@ app.get('/api/reviews/:id', proxyToReviews);
 app.get('/:id/reservation/reservationBundle.js', proxyToReservation);
 app.get('/reservation/style.css', proxyToReservation);
 app.get('/api/reservation/:id', proxyToReservation);
+
+
 
 app.listen(port, () => {
   Console.log(`proxy listening on port ${port}`);
