@@ -30,8 +30,9 @@ const proxyToReviews = createProxyMiddleware(reviewsOptions);
 const proxyToReservation = createProxyMiddleware(reservationOptions);
 
 // loader.io
-app.get('/loaderio-568aba208b4dd8267532dd993152af3d', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'loaderio-568aba208b4dd8267532dd993152af3d.txt'));
+const token = process.env.LIO || 'placeholder';
+app.get(`/${token}`, (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'loaderio.txt'));
 });
 
 // proxy home
