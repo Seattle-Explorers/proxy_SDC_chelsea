@@ -41,7 +41,7 @@ app.get('/reviews/bundle.js', proxyToReviews);
 app.get('/api/reviews/:id', proxyToReviews);
 
 // proxy to reservation service
-app.get('/reservation/bundle.js', proxyToReservation);
+app.get('/:id/reservation/reservationBundle.js', proxyToReservation);
 app.get('/reservation/style.css', proxyToReservation);
 app.get('/api/reservation/:id', proxyToReservation);
 
