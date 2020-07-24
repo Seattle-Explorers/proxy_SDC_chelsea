@@ -43,7 +43,7 @@ app.get('/description/main.js', proxyToDescription);
 app.get('/api/description/:id', proxyToDescription);
 
 // proxy to reviews service
-app.get('/reviews/bundle.js', proxyToReviews);
+app.get('/:id/reviews/bundle.js', proxyToReviews);
 app.get('/api/reviews/:id', proxyToReviews);
 
 // proxy to reservation service
