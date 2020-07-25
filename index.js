@@ -3,38 +3,55 @@ const path = require('path');
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-// have a server that takes various different api calls:
-// localhost:8080/description/:id
-// localhost:8080/reviews/api/:id
-// localhost:8080/reservations/api/:id
-// and translates them into calls on different ports where the backends are
-// localhost:3000/description/:id
-// localhost:3001/description/:id
-// localhost:3002/reservations/:id
-
+// proxy server setup
 const port = process.env.PORT || 8080;
-
-const proxyOptions = {
-  target: 'localhost',
-  changeOrigin: true,
-  router: {
-    'localhost:8080/api/description': 'http://localhost:3000',
-    'localhost:8080/api/reviews': 'http://localhost:3002',
-    'localhost:8080/api/reservation': 'http://localhost:3001',
-  },
-};
-
-const proxy = createProxyMiddleware(proxyOptions);
 const app = express();
 const proxyPath = path.join(__dirname);
-const descPath = path.join(__dirname, '..', 'FEC-Description-Component', 'client', 'dist');
-const revPath = path.join(__dirname, '..', 'FEC-Reviews-Component', 'client', 'public');
-const resPath = path.join(__dirname, '..', 'FEC-Reservation-Component', 'client', 'dist');
-app.use('/api', proxy);
-app.use('/', express.static(proxyPath));
-app.use('/description', express.static(descPath));
-app.use('/reservation', express.static(resPath));
-app.use('/review', express.static(revPath));
+
+// service routing setup
+const descriptionHost = process.env.DESHOST || 'localhost:3000';
+const reviewsHost = process.env.REVHOST || 'localhost:3002';
+const reservationHost = process.env.RESHOST || 'localhost:3001';
+
+const descriptionOptions = {
+  target: `http://${descriptionHost}`,
+  changeOrigin: true,
+};
+const reviewsOptions = {
+  target: `http://${reviewsHost}`,
+  changeOrigin: true,
+}
+const reservationOptions = {
+  target: `http://${reservationHost}`,
+  changeOrigin: true,
+}
+const proxyToDescription = createProxyMiddleware(descriptionOptions);
+const proxyToReviews = createProxyMiddleware(reviewsOptions);
+const proxyToReservation = createProxyMiddleware(reservationOptions);
+
+// loader.io
+const token = process.env.LIO || 'placeholder';
+app.get(`/${token}`, (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'loaderio.txt'));
+});
+
+// proxy home
+app.use('/:id', express.static(proxyPath));
+
+// proxy to description service
+app.get('/description/main.js', proxyToDescription);
+app.get('/api/description/:id', proxyToDescription);
+
+// proxy to reviews service
+app.get('/:id/reviews/bundle.js', proxyToReviews);
+app.get('/api/reviews/:id', proxyToReviews);
+
+// proxy to reservation service
+app.get('/:id/reservation/reservationBundle.js', proxyToReservation);
+app.get('/reservation/style.css', proxyToReservation);
+app.get('/api/reservation/:id', proxyToReservation);
+
+
 
 app.listen(port, () => {
   Console.log(`proxy listening on port ${port}`);
